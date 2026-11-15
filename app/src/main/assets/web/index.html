@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="silver">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#F5F5F7">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <title>Controle LDZ</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+ <symbol id="up" viewBox="0 0 24 24"><path d="m7 14 5-5 5 5"/></symbol>
+ <symbol id="down" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+ <symbol id="left" viewBox="0 0 24 24"><path d="m14 7-5 5 5 5"/></symbol>
+ <symbol id="right" viewBox="0 0 24 24"><path d="m10 7 5 5-5 5"/></symbol>
+ <symbol id="back" viewBox="0 0 24 24"><path d="m13 6-6 6 6 6M7 12h12"/></symbol>
+ <symbol id="home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></symbol>
+ <symbol id="play" viewBox="0 0 24 24"><path d="m4 5 9 7-9 7ZM17 5v14M21 5v14"/></symbol>
+ <symbol id="volume" viewBox="0 0 24 24"><path d="M11 4 6 8H2v8h4l5 4ZM15 8q4 4 0 8M18 5q7 7 0 14"/></symbol>
+ <symbol id="mute" viewBox="0 0 24 24"><path d="M11 4 6 8H2v8h4l5 4ZM16 9l6 6m0-6-6 6"/></symbol>
+ <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+ <symbol id="minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+ <symbol id="remote" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="4"/><circle cx="12" cy="9" r="3"/><path d="M10 16h4m-4 3h4"/></symbol>
+ <symbol id="apps" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+ <symbol id="keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 15h10"/></symbol>
+ <symbol id="settings" viewBox="0 0 24 24"><path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 3 3-1 2 2 3-1 1-3 3-1 1-3-2-2 1-3-3-2-3 1-2-2Z"/><circle cx="12" cy="11" r="3"/></symbol>
+ <symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+ <symbol id="send" viewBox="0 0 24 24"><path d="m3 3 19 9-19 9 3-9ZM6 12h16"/></symbol>
+ <symbol id="delete" viewBox="0 0 24 24"><path d="m3 12 6-7h12v14H9ZM11 9l6 6m0-6-6 6"/></symbol>
+</defs></svg>
+<div id="app">
+ <header class="header">
+   <div class="brand">LDZ<span>CONTROLE</span></div>
+   <button class="device" id="device-button" aria-label="Informações da conexão"><span class="status-dot"></span><span id="device-name">Sua TV</span></button>
+   <button class="icon-button settings-button" id="settings-button" aria-label="Aparência e conexão"><svg><use href="#settings"/></svg></button>
+ </header>
+ <main id="main">
+   <section id="pair-panel" class="panel pair-panel">
+     <div class="pair-mark"><svg><use href="#remote"/></svg></div>
+     <p class="eyebrow">CONTROLE LDZ</p><h1>Conecte. Relaxe.</h1>
+     <p class="supporting">O controle da sua TV,<br>agora no seu celular.</p>
+     <form id="pair-form"><label for="pair-code">Código exibido na TV</label><input id="pair-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required><button class="primary" type="submit" id="pair-submit">Conectar à TV</button></form>
+     <p class="pair-error" id="pair-error" role="status"></p>
+     <p class="local-note">Na mesma rede. Sem nuvem.</p>
+   </section>
+   <section id="remote-panel" class="panel remote-panel" hidden>
+     <div class="shortcuts" id="shortcuts" aria-label="Atalhos de aplicativos"></div>
+     <div class="pad-region"><div class="dpad" role="group" aria-label="Navegação da TV">
+       <button class="direction up" data-cmd="up" data-repeat aria-label="Para cima"><svg><use href="#up"/></svg></button>
+       <button class="direction left" data-cmd="left" data-repeat aria-label="Para esquerda"><svg><use href="#left"/></svg></button>
+       <button class="ok" data-cmd="ok" aria-label="Confirmar">OK</button>
+       <button class="direction right" data-cmd="right" data-repeat aria-label="Para direita"><svg><use href="#right"/></svg></button>
+       <button class="direction down" data-cmd="down" data-repeat aria-label="Para baixo"><svg><use href="#down"/></svg></button>
+     </div></div>
+     <div class="controls">
+       <button class="round" data-cmd="back" aria-label="Voltar"><svg><use href="#back"/></svg></button>
+       <button class="round" data-cmd="home" aria-label="Início"><svg><use href="#home"/></svg></button>
+       <div class="volume-rocker" role="group" aria-label="Volume"><button data-cmd="volume_up" data-repeat aria-label="Aumentar volume"><svg><use href="#plus"/></svg></button><svg class="volume-label"><use href="#volume"/></svg><button data-cmd="volume_down" data-repeat aria-label="Diminuir volume"><svg><use href="#minus"/></svg></button></div>
+       <button class="round" data-cmd="play_pause" aria-label="Reproduzir ou pausar"><svg><use href="#play"/></svg></button>
+       <button class="round" data-cmd="mute" aria-label="Ativar ou desativar mudo"><svg><use href="#mute"/></svg></button>
+     </div>
+   </section>
+   <section id="apps-panel" class="panel apps-panel" hidden><div class="section-heading"><p class="eyebrow">NA SUA TV</p><h1>Aplicativos</h1></div><div id="apps-grid" class="apps-grid"></div><div class="pagination"><button id="apps-previous" class="subtle-button" aria-label="Página anterior"><svg><use href="#left"/></svg></button><span id="apps-page">1 / 1</span><button id="apps-next" class="subtle-button" aria-label="Próxima página"><svg><use href="#right"/></svg></button></div></section>
+   <section id="keyboard-panel" class="panel keyboard-panel" hidden><div class="section-heading"><p class="eyebrow">SEM TECLAR NA TV</p><h1>Escreva por aqui.</h1><p class="supporting" id="keyboard-hint">Selecione primeiro um campo de texto na TV.</p></div><form id="text-form"><label for="remote-text" class="sr-only">Texto para enviar à TV</label><textarea id="remote-text" placeholder="O que você quer assistir?" maxlength="2000" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea><button type="submit" class="primary"><svg><use href="#send"/></svg>Enviar texto</button></form><div class="keyboard-actions"><button class="subtle-button" data-cmd="delete"><svg><use href="#delete"/></svg>Apagar na TV</button><button class="subtle-button" data-cmd="submit">Buscar / Enter</button></div></section>
+ </main>
+ <div class="message" id="message" role="status" aria-live="polite"></div>
+ <nav class="tabs" id="tabs" aria-label="Seções do controle" hidden><button data-tab="remote" class="selected" aria-current="page"><svg><use href="#remote"/></svg><span>Controle</span></button><button data-tab="apps"><svg><use href="#apps"/></svg><span>Apps</span></button><button data-tab="keyboard"><svg><use href="#keyboard"/></svg><span>Teclado</span></button></nav>
+ <section class="sheet" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden><div class="sheet-header"><h2 id="settings-title">Seu controle, seu estilo.</h2><button class="icon-button" id="settings-close" aria-label="Fechar configurações"><svg><use href="#close"/></svg></button></div><p class="supporting">Escolha a aparência.</p><div class="theme-options"><button class="theme-card silver" data-theme-choice="silver" aria-pressed="true"><span class="theme-preview"><span></span></span><strong>Prateado</strong><small>Claro e familiar</small></button><button class="theme-card midnight" data-theme-choice="midnight" aria-pressed="false"><span class="theme-preview"><span></span></span><strong>Meia-noite</strong><small>Escuro e discreto</small></button></div><div class="connection-details"><span>Conexão local</span><strong id="connection-address"></strong><p id="connection-detail">Use o código da TV para conectar.</p></div><button class="subtle-button forget-button" id="forget-button">Desconectar este celular</button><p class="version">Controle LDZ · 1.0</p></section>
+</div>
+</body></html>
