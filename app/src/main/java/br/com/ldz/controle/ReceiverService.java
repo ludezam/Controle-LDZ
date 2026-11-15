@@ -71,7 +71,7 @@ public final class ReceiverService extends Service {
     boolean authenticated(String bearer){if(bearer==null||!bearer.startsWith("Bearer "))return false;Long expires=sessions.get(bearer.substring(7));return expires!=null&&expires>System.currentTimeMillis();}
     JSONObject status()throws JSONException{
         if(!adb.ready()&&preferences.getBoolean("autoconnect",false))authorize();
-        return new JSONObject().put("name",deviceName()).put("version","1.0").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
+        return new JSONObject().put("name",deviceName()).put("version","1.1").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
     }
     String execute(JSONObject request)throws Exception{
         Future<String> job;
