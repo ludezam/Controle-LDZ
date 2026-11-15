@@ -33,6 +33,7 @@
  <symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
  <symbol id="send" viewBox="0 0 24 24"><path d="m3 3 19 9-19 9 3-9ZM6 12h16"/></symbol>
  <symbol id="delete" viewBox="0 0 24 24"><path d="m3 12 6-7h12v14H9ZM11 9l6 6m0-6-6 6"/></symbol>
+ <symbol id="power" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M6.2 6.2a8 8 0 1 0 11.6 0"/></symbol>
 </defs></svg>
 <div id="app">
  <header class="header">
@@ -51,13 +52,13 @@
    </section>
    <section id="remote-panel" class="panel remote-panel" hidden>
      <div class="shortcuts" id="shortcuts" aria-label="Atalhos de aplicativos"></div>
-     <div class="pad-region"><div class="dpad" role="group" aria-label="Navegação da TV">
+     <div class="pad-region"><div class="remote-controls"><button class="power-button" data-cmd="power" aria-label="Ligar ou desligar a TV"><svg><use href="#power"/></svg></button><div class="dpad" role="group" aria-label="Navegação da TV">
        <button class="direction up" data-cmd="up" data-repeat aria-label="Para cima"><svg><use href="#up"/></svg></button>
        <button class="direction left" data-cmd="left" data-repeat aria-label="Para esquerda"><svg><use href="#left"/></svg></button>
        <button class="ok" data-cmd="ok" aria-label="Confirmar">OK</button>
        <button class="direction right" data-cmd="right" data-repeat aria-label="Para direita"><svg><use href="#right"/></svg></button>
        <button class="direction down" data-cmd="down" data-repeat aria-label="Para baixo"><svg><use href="#down"/></svg></button>
-     </div></div>
+     </div></div></div>
      <div class="controls">
        <button class="round" data-cmd="back" aria-label="Voltar"><svg><use href="#back"/></svg></button>
        <button class="round" data-cmd="home" aria-label="Início"><svg><use href="#home"/></svg></button>
@@ -71,6 +72,6 @@
  </main>
  <div class="message" id="message" role="status" aria-live="polite"></div>
  <nav class="tabs" id="tabs" aria-label="Seções do controle" hidden><button data-tab="remote" class="selected" aria-current="page"><svg><use href="#remote"/></svg><span>Controle</span></button><button data-tab="apps"><svg><use href="#apps"/></svg><span>Apps</span></button><button data-tab="keyboard"><svg><use href="#keyboard"/></svg><span>Teclado</span></button></nav>
- <section class="sheet" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden><div class="sheet-header"><h2 id="settings-title">Seu controle, seu estilo.</h2><button class="icon-button" id="settings-close" aria-label="Fechar configurações"><svg><use href="#close"/></svg></button></div><p class="supporting">Escolha a aparência.</p><div class="theme-options"><button class="theme-card silver" data-theme-choice="silver" aria-pressed="true"><span class="theme-preview"><span></span></span><strong>Prateado</strong><small>Claro e familiar</small></button><button class="theme-card midnight" data-theme-choice="midnight" aria-pressed="false"><span class="theme-preview"><span></span></span><strong>Meia-noite</strong><small>Escuro e discreto</small></button></div><div class="connection-details"><span>Conexão local</span><strong id="connection-address"></strong><p id="connection-detail">Use o código da TV para conectar.</p></div><button class="subtle-button forget-button" id="forget-button">Desconectar este celular</button><p class="version">Controle LDZ · 1.1</p></section>
+ <section class="sheet" id="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden><div class="sheet-header"><h2 id="settings-title">Seu controle, seu estilo.</h2><button class="icon-button" id="settings-close" aria-label="Fechar configurações"><svg><use href="#close"/></svg></button></div><p class="supporting">Escolha a aparência.</p><div class="theme-options"><button class="theme-card silver" data-theme-choice="silver" aria-pressed="true"><span class="theme-preview"><span></span></span><strong>Prateado</strong><small>Claro e familiar</small></button><button class="theme-card midnight" data-theme-choice="midnight" aria-pressed="false"><span class="theme-preview"><span></span></span><strong>Meia-noite</strong><small>Escuro e discreto</small></button></div><div class="connection-details"><span>Conexão local</span><strong id="connection-address"></strong><p id="connection-detail">Use o código da TV para conectar.</p></div><button class="subtle-button forget-button" id="forget-button">Desconectar este celular</button><p class="version">Controle LDZ · 1.2</p></section>
 </div>
 </body></html>

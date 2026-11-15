@@ -5,6 +5,7 @@ import android.content.*;
 import android.content.pm.*;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.WifiManager;
 import android.os.*;
 import android.provider.Settings;
 import android.util.Base64;
@@ -24,6 +25,9 @@ public final class ReceiverService extends Service {
     final String pin=String.format(Locale.US,"%06d",new SecureRandom().nextInt(1000000));
     LocalAdb adb;
     private LocalHttpServer http;
+    private WifiManager.WifiLock standbyWifiLock;
+    private PowerManager.WakeLock standbyCpuLock;
+    private BroadcastReceiver screenStateReceiver;
     private final ExecutorService connection=Executors.newSingleThreadExecutor();
     private final ThreadPoolExecutor commands=new ThreadPoolExecutor(1,1,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(12));
     private SharedPreferences preferences;
@@ -39,12 +43,22 @@ public final class ReceiverService extends Service {
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(channel);
         PendingIntent open=PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         Notification notice=new Notification.Builder(this,"receiver").setSmallIcon(R.drawable.ic_remote).setContentTitle("Controle LDZ disponível").setContentText("Abra para conectar seu celular").setContentIntent(open).setOngoing(true).build();startForeground(41,notice);
+        keepWifiAvailableInStandby();
         try{http=new LocalHttpServer(this);http.start();}catch(IOException e){android.util.Log.e("ControleLDZ","Não foi possível iniciar receptor",e);stopSelf();}
         if(preferences.getBoolean("autoconnect",false))authorize();
     }
     @Override public int onStartCommand(Intent intent,int flags,int id){return START_STICKY;}
     @Override public IBinder onBind(Intent intent){return null;}
-    @Override public void onDestroy(){current=null;if(http!=null)http.close();commands.shutdownNow();connection.shutdownNow();adb.close();super.onDestroy();}
+    @Override public void onDestroy(){current=null;if(screenStateReceiver!=null)try{unregisterReceiver(screenStateReceiver);}catch(IllegalArgumentException ignored){}if(standbyWifiLock!=null&&standbyWifiLock.isHeld())standbyWifiLock.release();if(standbyCpuLock!=null&&standbyCpuLock.isHeld())standbyCpuLock.release();if(http!=null)http.close();commands.shutdownNow();connection.shutdownNow();adb.close();super.onDestroy();}
+    private void keepWifiAvailableInStandby(){
+        WifiManager wifi=(WifiManager)getApplicationContext().getSystemService(WIFI_SERVICE);if(wifi==null)return;
+        standbyWifiLock=wifi.createWifiLock(WifiManager.WIFI_MODE_FULL,"ControleLDZ:StandbyWifi");standbyWifiLock.setReferenceCounted(false);
+        PowerManager power=(PowerManager)getSystemService(POWER_SERVICE);if(power!=null){standbyCpuLock=power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"ControleLDZ:StandbyCpu");standbyCpuLock.setReferenceCounted(false);}
+        screenStateReceiver=new BroadcastReceiver(){@Override public void onReceive(Context context,Intent intent){if(Intent.ACTION_SCREEN_OFF.equals(intent.getAction()))holdStandbyWifi(true);else if(Intent.ACTION_SCREEN_ON.equals(intent.getAction()))holdStandbyWifi(false);}};
+        IntentFilter filter=new IntentFilter();filter.addAction(Intent.ACTION_SCREEN_OFF);filter.addAction(Intent.ACTION_SCREEN_ON);registerReceiver(screenStateReceiver,filter);
+        if(power!=null&&!power.isInteractive())holdStandbyWifi(true);
+    }
+    private void holdStandbyWifi(boolean hold){if(hold){if(standbyWifiLock!=null&&!standbyWifiLock.isHeld())standbyWifiLock.acquire();if(standbyCpuLock!=null&&!standbyCpuLock.isHeld())standbyCpuLock.acquire();}else{if(standbyWifiLock!=null&&standbyWifiLock.isHeld())standbyWifiLock.release();if(standbyCpuLock!=null&&standbyCpuLock.isHeld())standbyCpuLock.release();}}
     void authorize(){
         if("connecting".equals(adb.state)||adb.ready())return;
         long now=System.currentTimeMillis();
@@ -71,7 +85,7 @@ public final class ReceiverService extends Service {
     boolean authenticated(String bearer){if(bearer==null||!bearer.startsWith("Bearer "))return false;Long expires=sessions.get(bearer.substring(7));return expires!=null&&expires>System.currentTimeMillis();}
     JSONObject status()throws JSONException{
         if(!adb.ready()&&preferences.getBoolean("autoconnect",false))authorize();
-        return new JSONObject().put("name",deviceName()).put("version","1.1").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
+        return new JSONObject().put("name",deviceName()).put("version","1.2").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
     }
     String execute(JSONObject request)throws Exception{
         Future<String> job;
@@ -82,7 +96,10 @@ public final class ReceiverService extends Service {
         String action=request.optString("action");
         if(action.equals("text")){String text=request.optString("text");if(text.length()>2000)throw new IOException("Envie até 2.000 caracteres por vez.");if(!RemoteIme.send(text,false))throw new IOException("Selecione um campo na TV e ative o Teclado Controle LDZ.");return "Texto enviado";}
         if(action.equals("submit")){if(RemoteIme.send("",true))return "Pesquisa enviada";action="enter";}
-        if(!adb.ready()){authorize();throw new IOException(adb.detail);}
+        if(!adb.ready()){if(action.equals("power"))adb.connect();else{authorize();throw new IOException(adb.detail);}}
+        if(action.equals("power")){
+            String output=sendShell("input keyevent 26");if(!output.isEmpty())throw new IOException("O Android recusou o comando de energia");return "Comando de energia enviado";
+        }
         if(action.equals("launch")){
             String pkg=request.optString("package");if(!pkg.matches("[A-Za-z0-9_]+(?:\\.[A-Za-z0-9_]+)+"))throw new IOException("Aplicativo inválido");
             Intent intent=getPackageManager().getLeanbackLaunchIntentForPackage(pkg);if(intent==null)intent=getPackageManager().getLaunchIntentForPackage(pkg);if(intent==null||intent.getComponent()==null)throw new IOException("Aplicativo indisponível");
