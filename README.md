@@ -16,6 +16,14 @@ Controle remoto local para Android TV e projetores Android. O aparelho executa u
 - Ícone e banner próprios para launchers de Android TV.
 - Serviço em primeiro plano para manter o receptor disponível enquanto o aparelho está ligado.
 
+## Capturas da interface
+
+As imagens abaixo mostram a página de controle nos dois temas disponíveis:
+
+| Prateado | Meia-noite |
+|---|---|
+| ![Controle LDZ no tema prateado](docs/screenshots/controle-prateado.png) | ![Controle LDZ no tema meia-noite](docs/screenshots/controle-meia-noite.png) |
+
 ## Como conectar
 
 1. Instale e abra **Controle LDZ** na TV ou no projetor.
