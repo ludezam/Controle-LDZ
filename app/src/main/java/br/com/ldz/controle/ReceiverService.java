@@ -42,7 +42,7 @@ public final class ReceiverService extends Service {
         NotificationChannel channel=new NotificationChannel("receiver","Controle pela rede local",NotificationManager.IMPORTANCE_LOW);
         ((NotificationManager)getSystemService(NOTIFICATION_SERVICE)).createNotificationChannel(channel);
         PendingIntent open=PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
-        Notification notice=new Notification.Builder(this,"receiver").setSmallIcon(R.drawable.ic_remote).setContentTitle("Controle LDZ disponível").setContentText("Abra para conectar seu celular").setContentIntent(open).setOngoing(true).build();startForeground(41,notice);
+        Notification notice=new Notification.Builder(this,"receiver").setSmallIcon(R.drawable.ic_notification).setContentTitle("Controle LDZ disponível").setContentText("Abra para conectar seu celular").setContentIntent(open).setOngoing(true).build();startForeground(41,notice);
         keepWifiAvailableInStandby();
         try{http=new LocalHttpServer(this);http.start();}catch(IOException e){android.util.Log.e("ControleLDZ","Não foi possível iniciar receptor",e);stopSelf();}
         if(preferences.getBoolean("autoconnect",false))authorize();
@@ -85,7 +85,7 @@ public final class ReceiverService extends Service {
     boolean authenticated(String bearer){if(bearer==null||!bearer.startsWith("Bearer "))return false;Long expires=sessions.get(bearer.substring(7));return expires!=null&&expires>System.currentTimeMillis();}
     JSONObject status()throws JSONException{
         if(!adb.ready()&&preferences.getBoolean("autoconnect",false))authorize();
-        return new JSONObject().put("name",deviceName()).put("version","1.3.1").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
+        return new JSONObject().put("name",deviceName()).put("version","1.4").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
     }
     String execute(JSONObject request)throws Exception{
         Future<String> job;
