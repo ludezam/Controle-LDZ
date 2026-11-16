@@ -11,7 +11,7 @@ Controle remoto local para Android TV e projetores Android. O aparelho executa u
 
 - Pareamento por QR code ou código curto exibidos na tela do aparelho.
 - Setas e seleção, voltar, início, volume, mudo e controles de reprodução.
-- Botão de energia para colocar a tela em modo de espera e tentar acordá-la pela rede quando o aparelho ainda está acessível.
+- Botão de energia centralizado com o direcional, a Home e o Mudo; pede confirmação antes de desligar e orienta a reabrir o app na TV após ligá-la.
 - Abas para aplicativos instalados e teclado do celular, incluindo texto Unicode.
 - Temas **Prateado** e **Meia-noite**, layout para retrato e paisagem, sem rolagem ou zoom acidental.
 - Ícone e banner próprios para launchers de Android TV.
@@ -62,7 +62,7 @@ $env:ANDROID_BUILD_TOOLS_ROOT = 'C:\caminho\para\android-build-tools'
 .\build-apk.ps1
 ```
 
-O script gera `outputs/Controle LDZ 1.2.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
+O script gera `outputs/Controle LDZ 1.3.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
 
 O keystore de desenvolvimento fica em `.android/` e não é publicado. Uma instalação existente só aceita atualizações assinadas com a mesma chave privada; preserve seu keystore e não o envie ao GitHub. Cada clone novo gera uma chave de desenvolvimento própria.
 
