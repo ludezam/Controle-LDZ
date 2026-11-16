@@ -62,7 +62,7 @@ $env:ANDROID_BUILD_TOOLS_ROOT = 'C:\caminho\para\android-build-tools'
 .\build-apk.ps1
 ```
 
-O script gera `outputs/Controle LDZ 1.4.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
+O script gera `outputs/Controle LDZ 1.4.1.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
 
 O keystore de desenvolvimento fica em `.android/` e não é publicado. Uma instalação existente só aceita atualizações assinadas com a mesma chave privada; preserve seu keystore e não o envie ao GitHub. Cada clone novo gera uma chave de desenvolvimento própria.
 
