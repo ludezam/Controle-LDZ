@@ -40,7 +40,7 @@ $aligned = Join-Path $build 'aligned.apk'
 Native "$buildTools\zipalign.exe" @('-f','4',$unsigned,$aligned)
 $key = Join-Path $keys 'controle-ldz-test.keystore'
 if (-not (Test-Path -LiteralPath $key)) { Native "$jdk\keytool.exe" @('-genkeypair','-keystore',$key,'-storepass','android','-keypass','android','-alias','controle','-dname','CN=Controle LDZ Test','-keyalg','RSA','-keysize','2048','-validity','10000','-noprompt') }
-$apk = Join-Path $outputs 'Controle LDZ 1.3.apk'
+$apk = Join-Path $outputs 'Controle LDZ 1.3.1.apk'
 $verified = Join-Path $build 'verified.apk'
 Native "$jdk\java.exe" @('-jar',"$buildTools\lib\apksigner.jar",'sign','--ks',$key,'--ks-key-alias','controle','--ks-pass','pass:android','--key-pass','pass:android','--out',$verified,$aligned)
 Native "$jdk\java.exe" @('-jar',"$buildTools\lib\apksigner.jar",'verify','--verbose',$verified)
