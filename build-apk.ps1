@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 $buildLock = [IO.File]::Open((Join-Path $PSScriptRoot 'work\build.lock'), [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
 try {
 $toolRoot = $env:ANDROID_BUILD_TOOLS_ROOT
-if ([string]::IsNullOrWhiteSpace($toolRoot)) { $toolRoot = Join-Path $PSScriptRoot 'tools\android-build-tools' }
+if ([string]::IsNullOrWhiteSpace($toolRoot)) { $toolRoot = 'C:\Users\ludez\Documents\Codex\tools\android-build-tools' }
 $toolRoot = [IO.Path]::GetFullPath($toolRoot)
 $javaHome = $env:JAVA_HOME
 if ([string]::IsNullOrWhiteSpace($javaHome)) { $javaHome = Join-Path $toolRoot 'jdk\jdk-17.0.20.1+1' }
@@ -40,7 +40,7 @@ $aligned = Join-Path $build 'aligned.apk'
 Native "$buildTools\zipalign.exe" @('-f','4',$unsigned,$aligned)
 $key = Join-Path $keys 'controle-ldz-test.keystore'
 if (-not (Test-Path -LiteralPath $key)) { Native "$jdk\keytool.exe" @('-genkeypair','-keystore',$key,'-storepass','android','-keypass','android','-alias','controle','-dname','CN=Controle LDZ Test','-keyalg','RSA','-keysize','2048','-validity','10000','-noprompt') }
-$apk = Join-Path $outputs 'Controle LDZ 1.4.2.apk'
+$apk = Join-Path $outputs 'Controle LDZ 1.5.0.apk'
 $verified = Join-Path $build 'verified.apk'
 Native "$jdk\java.exe" @('-jar',"$buildTools\lib\apksigner.jar",'sign','--ks',$key,'--ks-key-alias','controle','--ks-pass','pass:android','--key-pass','pass:android','--out',$verified,$aligned)
 Native "$jdk\java.exe" @('-jar',"$buildTools\lib\apksigner.jar",'verify','--verbose',$verified)
@@ -55,3 +55,4 @@ for ($attempt=0; $attempt -lt 8; $attempt++) {
 [IO.File]::WriteAllText((Join-Path $outputs 'SHA256SUMS.txt'),$hash+'  '+[IO.Path]::GetFileName($apk)+"`n",[Text.UTF8Encoding]::new($false))
 Write-Output "APK pronto: $apk"
 } finally { $buildLock.Dispose() }
+

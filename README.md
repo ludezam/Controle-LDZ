@@ -4,7 +4,7 @@ Controle remoto local para Android TV e projetores Android. O aparelho executa u
 
 ## Projetos relacionados
 
-- [FreeMyTV LDZ](https://github.com/ludezam/FreeMyTV-LDZ) — home personalizada para Google TV e Android TV.
+- [TV LDZ](https://github.com/ludezam/TV-LDZ) — launcher personalizado para Google TV e Android TV.
 - [FreeMyProjector LDZ](https://github.com/ludezam/FreeMyProjector-LDZ) — home personalizada para projetores Android.
 
 ## Recursos
@@ -55,14 +55,14 @@ O receptor fica disponível na rede local pela porta TCP 8765. A API exige parea
 
 ## Compilar no Windows
 
-Requisitos: PowerShell, JDK 17, Android SDK `platforms;android-34` e `build-tools;34.0.0`. O SDK deve ter a estrutura `android-sdk` e o JDK `jdk` dentro da pasta indicada por `ANDROID_BUILD_TOOLS_ROOT`, ou configure `ANDROID_SDK_ROOT` e `JAVA_HOME`.
+Requisitos: PowerShell, JDK 17, Android SDK `platforms;android-34` e `build-tools;34.0.0`. Por padrão, o build usa `C:\Users\ludez\Documents\Codex\tools\android-build-tools` (Android SDK em `android-sdk` e JDK em `jdk`). Para outro local, configure `ANDROID_BUILD_TOOLS_ROOT`, ou configure `ANDROID_SDK_ROOT` e `JAVA_HOME`.
 
 ```powershell
-$env:ANDROID_BUILD_TOOLS_ROOT = 'C:\caminho\para\android-build-tools'
+$env:ANDROID_BUILD_TOOLS_ROOT = 'C:\Users\ludez\Documents\Codex\tools\android-build-tools'
 .\build-apk.ps1
 ```
 
-O script gera `outputs/Controle LDZ 1.4.2.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
+O script gera `outputs/Controle LDZ 1.5.0.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
 
 O keystore de desenvolvimento fica em `.android/` e não é publicado. Uma instalação existente só aceita atualizações assinadas com a mesma chave privada; preserve seu keystore e não o envie ao GitHub. Cada clone novo gera uma chave de desenvolvimento própria.
 
@@ -79,3 +79,6 @@ O teste salva o token local em `work/test-session.json`; a pasta `work/` é igno
 ## Licenças
 
 Este repositório ainda não define uma licença de reutilização para o código Controle LDZ. O ZXing Core 3.5.3 é distribuído sob Apache License 2.0; veja [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) e `app/src/main/assets/licenses/`.
+
+
+
