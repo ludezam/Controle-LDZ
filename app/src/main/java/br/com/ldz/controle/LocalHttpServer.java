@@ -25,8 +25,10 @@ final class LocalHttpServer {
             if(!validHost){reply(output,403,"application/json",jsonError("Endereço de conexão inválido"));return;}
             String method=first[0],path=first[1].split("\\?",2)[0];
             if(headers.containsKey("transfer-encoding")){reply(output,400,"application/json",jsonError("Formato não suportado"));return;}
-            int size;try{size=Integer.parseInt(headers.getOrDefault("content-length","0"));}catch(NumberFormatException e){size=-1;}if(size<0||size>16384){reply(output,413,"application/json",jsonError("Requisição muito grande"));return;}
-            if(method.equals("POST")&&!headers.getOrDefault("content-type","").toLowerCase(Locale.ROOT).startsWith("application/json")){reply(output,415,"application/json",jsonError("Use JSON"));return;}
+            boolean photoUpload=path.equals("/api/tv/photos")&&method.equals("POST");
+            int size;try{size=Integer.parseInt(headers.getOrDefault("content-length","0"));}catch(NumberFormatException e){size=-1;}if(size<0||size>(photoUpload?12*1024*1024:16384)){reply(output,413,"application/json",jsonError("Requisição muito grande"));return;}
+            String contentType=headers.getOrDefault("content-type","").toLowerCase(Locale.ROOT);
+            if(method.equals("POST")&&!(photoUpload?contentType.startsWith("image/"):contentType.startsWith("application/json"))){reply(output,415,"application/json",jsonError(photoUpload?"Envie um arquivo de imagem":"Use JSON"));return;}
             byte[] body=new byte[size];int read=0;while(read<size){int n=input.read(body,read,size-read);if(n<0)throw new EOFException();read+=n;}
             // Consumir o corpo limitado antes de recusar a origem evita um RST
             // que poderia interromper a resposta HTTP de erro no cliente.
@@ -37,12 +39,17 @@ final class LocalHttpServer {
                     if(!service.authenticated(headers.get("authorization"))){reply(output,401,"application/json",jsonError("Conecte este celular usando o código da TV"));return;}
                     if(path.equals("/api/status")&&method.equals("GET"))reply(output,200,"application/json",bytes(service.status().toString()));
                     else if(path.equals("/api/apps")&&method.equals("GET"))reply(output,200,"application/json",bytes(service.apps()));
+                    else if(path.equals("/api/tv/available")&&method.equals("GET"))reply(output,200,"application/json",bytes(new JSONObject().put("available",service.tvCustomizationAvailable()).toString()));
+                    else if(path.equals("/api/tv/settings")&&method.equals("GET"))reply(output,200,"application/json",bytes(service.tvSettings().toString()));
+                    else if(path.equals("/api/tv/settings")&&method.equals("POST"))reply(output,200,"application/json",bytes(service.setTvSetting(new JSONObject(new String(body,StandardCharsets.UTF_8))).toString()));
+                    else if(path.equals("/api/tv/photos")&&method.equals("POST"))reply(output,200,"application/json",bytes(service.importTvPhoto(body,contentType).toString()));
+                    else if(path.equals("/api/tv/photos")&&method.equals("DELETE"))reply(output,200,"application/json",bytes(service.clearTvPhotos().toString()));
                     else if(path.equals("/api/command")&&method.equals("POST")){String message=service.execute(new JSONObject(new String(body,StandardCharsets.UTF_8)));reply(output,200,"application/json",bytes(new JSONObject().put("ok",true).put("message",message).toString()));}
                     else reply(output,404,"application/json",jsonError("Rota indisponível"));return;
                 }
                 if(!method.equals("GET")&&!method.equals("HEAD")){reply(output,405,"application/json",jsonError("Método não permitido"));return;}
                 String asset,type;
-                switch(path){case "/":case "/index.html":asset="web/index.html";type="text/html; charset=utf-8";break;case "/app.js":asset="web/app.js";type="application/javascript; charset=utf-8";break;case "/style.css":asset="web/style.css";type="text/css; charset=utf-8";break;case "/manifest.webmanifest":asset="web/manifest.webmanifest";type="application/manifest+json";break;case "/icon.svg":asset="web/icon.svg";type="image/svg+xml";break;default:reply(output,404,"application/json",jsonError("Não encontrado"));return;}
+                switch(path){case "/":case "/index.html":asset="web/index.html";type="text/html; charset=utf-8";break;case "/personalizacao.html":asset="web/personalizacao.html";type="text/html; charset=utf-8";break;case "/app.js":asset="web/app.js";type="application/javascript; charset=utf-8";break;case "/personalizacao.js":asset="web/personalizacao.js";type="application/javascript; charset=utf-8";break;case "/personalizacao.css":asset="web/personalizacao.css";type="text/css; charset=utf-8";break;case "/style.css":asset="web/style.css";type="text/css; charset=utf-8";break;case "/manifest.webmanifest":asset="web/manifest.webmanifest";type="application/manifest+json";break;case "/icon.svg":asset="web/icon.svg";type="image/svg+xml";break;default:reply(output,404,"application/json",jsonError("Não encontrado"));return;}
                 ByteArrayOutputStream data=new ByteArrayOutputStream();try(InputStream file=service.getAssets().open(asset)){byte[] buffer=new byte[8192];int n;while((n=file.read(buffer))!=-1)data.write(buffer,0,n);}reply(output,200,type,method.equals("HEAD")?new byte[0]:data.toByteArray());
             }catch(JSONException e){reply(output,400,"application/json",jsonError("Dados inválidos"));}catch(Exception e){reply(output,409,"application/json",jsonError(e.getMessage()==null?"Falha ao executar comando":e.getMessage()));}
         }catch(IOException ignored){}

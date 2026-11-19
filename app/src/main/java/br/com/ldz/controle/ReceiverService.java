@@ -5,6 +5,7 @@ import android.content.*;
 import android.content.pm.*;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.*;
 import android.provider.Settings;
@@ -85,7 +86,7 @@ public final class ReceiverService extends Service {
     boolean authenticated(String bearer){if(bearer==null||!bearer.startsWith("Bearer "))return false;Long expires=sessions.get(bearer.substring(7));return expires!=null&&expires>System.currentTimeMillis();}
     JSONObject status()throws JSONException{
         if(!adb.ready()&&preferences.getBoolean("autoconnect",false))authorize();
-        return new JSONObject().put("name",deviceName()).put("version","1.4.2").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
+        return new JSONObject().put("name",deviceName()).put("version","1.5.0").put("ready",adb.ready()).put("state",adb.state).put("detail",adb.detail).put("keyboardConfigured",("br.com.ldz.controle/.RemoteIme").equals(Settings.Secure.getString(getContentResolver(),Settings.Secure.DEFAULT_INPUT_METHOD)));
     }
     String execute(JSONObject request)throws Exception{
         Future<String> job;
@@ -118,6 +119,32 @@ public final class ReceiverService extends Service {
         List<ResolveInfo> ordered=new ArrayList<>(map.values());ordered.sort((a,b)->a.loadLabel(manager).toString().compareToIgnoreCase(b.loadLabel(manager).toString()));JSONArray result=new JSONArray();
         for(ResolveInfo info:ordered){if(result.length()>=80)break;JSONObject app=new JSONObject().put("package",info.activityInfo.packageName).put("name",info.loadLabel(manager).toString());try{Drawable icon=info.loadIcon(manager);Bitmap bitmap=Bitmap.createBitmap(72,72,Bitmap.Config.ARGB_8888);Canvas canvas=new Canvas(bitmap);icon.setBounds(0,0,72,72);icon.draw(canvas);ByteArrayOutputStream bytes=new ByteArrayOutputStream();bitmap.compress(Bitmap.CompressFormat.PNG,100,bytes);app.put("icon","data:image/png;base64,"+Base64.encodeToString(bytes.toByteArray(),Base64.NO_WRAP));bitmap.recycle();}catch(Exception ignored){}result.put(app);}
         cachedApps=result.toString();appsAt=System.currentTimeMillis();return cachedApps;
+    }
+    private static final Uri TV_REMOTE=Uri.parse("content://io.freemytv.remote/settings");
+    boolean tvCustomizationAvailable(){return getPackageManager().resolveContentProvider("io.freemytv.remote",0)!=null;}
+    JSONObject tvSettings()throws Exception{
+        if(!tvCustomizationAvailable())throw new IOException("Instale uma versão do TV LDZ com personalização remota.");
+        Bundle result=getContentResolver().call(TV_REMOTE,"get",null,null);if(result==null)throw new IOException("TV LDZ não respondeu.");
+        return new JSONObject(result.getString("settings","{}"));
+    }
+    JSONObject setTvSetting(JSONObject setting)throws Exception{
+        if(!tvCustomizationAvailable())throw new IOException("TV LDZ não está disponível.");
+        Bundle extras=new Bundle();extras.putString("key",setting.optString("key"));extras.putString("value",setting.optString("value"));
+        Bundle result=getContentResolver().call(TV_REMOTE,"set",null,extras);if(result==null||!result.getBoolean("ok",false))throw new IOException(result==null?"TV LDZ não respondeu.":result.getString("error","Não foi possível salvar."));
+        return tvSettings();
+    }
+    JSONObject importTvPhoto(byte[] image,String contentType)throws Exception{
+        if(!tvCustomizationAvailable())throw new IOException("TV LDZ não está disponível.");
+        String mime=contentType.toLowerCase(Locale.ROOT);String ext=mime.equals("image/png")?"png":mime.equals("image/webp")?"webp":mime.equals("image/jpeg")?"jpg":null;if(ext==null)throw new IOException("Use uma foto JPEG, PNG ou WebP.");String name="controle-"+System.currentTimeMillis()+"."+ext;
+        Uri uri=Uri.parse("content://io.freemytv.photos/"+name+"?size="+image.length);
+        try(OutputStream out=getContentResolver().openOutputStream(uri,"w")){if(out==null)throw new IOException("Não foi possível enviar a foto.");out.write(image);}
+        Bundle result=getContentResolver().call(TV_REMOTE,"import",null,null);if(result==null)throw new IOException("A foto foi enviada, mas TV LDZ não respondeu.");
+        return new JSONObject().put("ok",true).put("count",result.getInt("count",0));
+    }
+    JSONObject clearTvPhotos()throws Exception{
+        if(!tvCustomizationAvailable())throw new IOException("TV LDZ não está disponível.");
+        Bundle result=getContentResolver().call(TV_REMOTE,"clearPhotos",null,null);if(result==null||!result.getBoolean("ok",false))throw new IOException(result==null?"TV LDZ não respondeu.":result.getString("error","Não foi possível remover as fotos."));
+        return new JSONObject().put("ok",true);
     }
     private String randomToken(int count){byte[] bytes=new byte[count];random.nextBytes(bytes);return Base64.encodeToString(bytes,Base64.URL_SAFE|Base64.NO_WRAP|Base64.NO_PADDING);}
 }
