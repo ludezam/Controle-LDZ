@@ -25,22 +25,24 @@ $dex = Join-Path $build 'dex'
 $outputs = Join-Path $PSScriptRoot 'outputs'
 $keys = Join-Path $PSScriptRoot '.android'
 foreach ($path in @($classes,$generated,$dex,$outputs,$keys)) { New-Item -ItemType Directory -Force -Path $path | Out-Null }
+$zxingBuild = Join-Path $build 'zxing-core-3.5.3.jar'
+Copy-Item -LiteralPath $zxing -Destination $zxingBuild
 $unsigned = Join-Path $build 'unsigned.apk'
 Native "$buildTools\aapt.exe" @('package','-f','-M',"$source\AndroidManifest.xml",'-S',"$source\res",'-A',"$source\assets",'-I',$androidJar,'-J',$generated,'-F',$unsigned,'--min-sdk-version','26','--target-sdk-version','32')
 $javaFiles = @(Get-ChildItem "$source\java",$generated -Filter '*.java' -Recurse | ForEach-Object { '"' + $_.FullName.Replace('\','/') + '"' })
 $sourceList = Join-Path $build 'sources.txt'
 [IO.File]::WriteAllLines($sourceList,$javaFiles,[Text.UTF8Encoding]::new($false))
-Native "$jdk\javac.exe" @('-encoding','UTF-8','-source','8','-target','8','-bootclasspath',"$androidJar;$buildTools\core-lambda-stubs.jar",'-classpath',$zxing,'-d',$classes,"@$sourceList")
+Native "$jdk\javac.exe" @('-encoding','UTF-8','-source','8','-target','8','-bootclasspath',"$androidJar;$buildTools\core-lambda-stubs.jar",'-classpath',$zxingBuild,'-d',$classes,"@$sourceList")
 # Empacotar as classes antes do D8 evita limites de tamanho da linha de comando.
 $compiled = Join-Path $build 'compiled.jar'
 Native "$jdk\jar.exe" @('cf',$compiled,'-C',$classes,'.')
-Native "$buildTools\d8.bat" @('--release','--lib',$androidJar,'--min-api','26','--output',$dex,$compiled,$zxing)
+Native "$buildTools\d8.bat" @('--release','--lib',$androidJar,'--min-api','26','--output',$dex,$compiled,$zxingBuild)
 Native "$jdk\jar.exe" @('uf',$unsigned,'-C',$dex,'classes.dex')
 $aligned = Join-Path $build 'aligned.apk'
 Native "$buildTools\zipalign.exe" @('-f','4',$unsigned,$aligned)
 $key = Join-Path $keys 'controle-ldz-test.keystore'
 if (-not (Test-Path -LiteralPath $key)) { Native "$jdk\keytool.exe" @('-genkeypair','-keystore',$key,'-storepass','android','-keypass','android','-alias','controle','-dname','CN=Controle LDZ Test','-keyalg','RSA','-keysize','2048','-validity','10000','-noprompt') }
-$apk = Join-Path $outputs 'Controle LDZ 1.5.0.apk'
+$apk = Join-Path $outputs 'Controle-LDZ-1.5.0.apk'
 $verified = Join-Path $build 'verified.apk'
 Native "$jdk\java.exe" @('-jar',"$buildTools\lib\apksigner.jar",'sign','--ks',$key,'--ks-key-alias','controle','--ks-pass','pass:android','--key-pass','pass:android','--out',$verified,$aligned)
 Native "$jdk\java.exe" @('-jar',"$buildTools\lib\apksigner.jar",'verify','--verbose',$verified)
