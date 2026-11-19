@@ -82,3 +82,10 @@ Este repositório ainda não define uma licença de reutilização para o códig
 
 
 
+
+
+## Integração com TV LDZ
+
+A versão de código **Controle LDZ 1.5.0** adiciona uma página **Personalizar** para TVs compatíveis com [TV LDZ 2.2.0](https://github.com/ludezam/TV-LDZ). Depois de parear o celular com o Controle LDZ, a tela permite ajustar opções da home, como papel de parede, desfoque, protetor de tela e fotos, pela rede local.
+
+A integração requer a versão correspondente do TV LDZ e o provedor de configurações ativo no aparelho. Este commit publica o código-fonte; a release do APK precisa ser publicada separadamente para aparecer em **Buscar atualizações**.
