@@ -34,6 +34,9 @@ public final class MainActivity extends Activity {
         ImageView background=new ImageView(this);background.setScaleType(ImageView.ScaleType.FIT_XY);background.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         try(InputStream stream=getAssets().open("receiver/remote-liquid-glass.png")){background.setImageBitmap(BitmapFactory.decodeStream(stream));}catch(Exception ignored){}
         root.place(background,0,0,1280,720,0);
+        // Power button drawn over the physical remote artwork; the composition stays at 16:9.
+        PowerGlyph power=new PowerGlyph();power.setContentDescription("Botão de energia do controle");power.setElevation(8);
+        root.place(power,637,20,44,44,0);
         root.place(text("Controle LDZ",INK,true),50,34,260,42,32);
         root.place(text("1.5.0",0xff727277,false),281,43,64,30,21);
         device=text("●  TCL · Smart TV",INK,false);device.setGravity(Gravity.RIGHT|Gravity.CENTER_VERTICAL);root.place(device,920,32,312,42,23);
@@ -65,6 +68,19 @@ public final class MainActivity extends Activity {
         DesignLayout(){super(MainActivity.this);}
         void place(View view,int x,int y,int width,int height,int size){placements.add(new Placement(view,x,y,width,height,size));addView(view,new FrameLayout.LayoutParams(width,height));}
         @Override protected void onSizeChanged(int w,int h,int oldw,int oldh){super.onSizeChanged(w,h,oldw,oldh);float scale=Math.min(w/1280f,h/720f),ox=(w-1280*scale)/2,oy=(h-720*scale)/2;for(Placement item:placements){FrameLayout.LayoutParams lp=(FrameLayout.LayoutParams)item.view.getLayoutParams();lp.width=Math.round(item.width*scale);lp.height=Math.round(item.height*scale);lp.leftMargin=Math.round(ox+item.x*scale);lp.topMargin=Math.round(oy+item.y*scale);item.view.setLayoutParams(lp);if(item.size>0&&item.view instanceof TextView)((TextView)item.view).setTextSize(TypedValue.COMPLEX_UNIT_PX,item.size*scale);}}
+    }
+    private final class PowerGlyph extends View {
+        private final Paint paint=new Paint(Paint.ANTI_ALIAS_FLAG);
+        PowerGlyph(){super(MainActivity.this);setLayerType(View.LAYER_TYPE_SOFTWARE,null);}
+        @Override protected void onDraw(Canvas canvas){
+            super.onDraw(canvas);float s=Math.min(getWidth(),getHeight())/44f,cx=getWidth()/2f,cy=getHeight()/2f,r=18*s;
+            paint.setStyle(Paint.Style.FILL);paint.setShader(new LinearGradient(cx-r,cy-r,cx+r,cy+r,new int[]{0xffff777d,0xfffa3340,0xffd80c24},null,Shader.TileMode.CLAMP));
+            canvas.drawCircle(cx,cy,r,paint);paint.setShader(null);
+            paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(1.4f*s);paint.setColor(0x99ffffff);canvas.drawCircle(cx,cy,r-0.7f*s,paint);
+            paint.setShader(new LinearGradient(cx,cy-r,cx,cy,new int[]{0x44ffffff,0x00ffffff},null,Shader.TileMode.CLAMP));paint.setStyle(Paint.Style.FILL);canvas.drawOval(cx-r*0.72f,cy-r*0.9f,cx+r*0.72f,cy-r*0.08f,paint);paint.setShader(null);
+            paint.setColor(Color.WHITE);paint.setStyle(Paint.Style.STROKE);paint.setStrokeWidth(2.5f*s);paint.setStrokeCap(Paint.Cap.ROUND);paint.setStrokeJoin(Paint.Join.ROUND);
+            RectF arc=new RectF(cx-7*s,cy-7*s,cx+7*s,cy+7*s);canvas.drawArc(arc,45,270,false,paint);canvas.drawLine(cx,cy-10*s,cx,cy+1*s,paint);
+        }
     }
     private static final class Placement {final View view;final int x,y,width,height,size;Placement(View v,int x,int y,int w,int h,int s){view=v;this.x=x;this.y=y;width=w;height=h;size=s;}}
 }
