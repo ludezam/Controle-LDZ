@@ -62,7 +62,7 @@ $env:ANDROID_BUILD_TOOLS_ROOT = 'C:\Users\ludez\Documents\Codex\tools\android-bu
 .\build-apk.ps1
 ```
 
-O script gera `outputs/Controle LDZ 1.5.0.apk`. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
+O script gera `outputs/Controle-LDZ-1.5.0.apk`, com o nome exigido pelo atualizador integrado. A dependência ZXing Core 3.5.3 e a licença Apache 2.0 estão em `libs/` e em `app/src/main/assets/licenses/`.
 
 O keystore de desenvolvimento fica em `.android/` e não é publicado. Uma instalação existente só aceita atualizações assinadas com a mesma chave privada; preserve seu keystore e não o envie ao GitHub. Cada clone novo gera uma chave de desenvolvimento própria.
 
@@ -80,12 +80,11 @@ O teste salva o token local em `work/test-session.json`; a pasta `work/` é igno
 
 Este repositório ainda não define uma licença de reutilização para o código Controle LDZ. O ZXing Core 3.5.3 é distribuído sob Apache License 2.0; veja [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) e `app/src/main/assets/licenses/`.
 
-
-
-
-
 ## Integração com TV LDZ
 
-A versão de código **Controle LDZ 1.5.0** adiciona uma página **Personalizar** para TVs compatíveis com [TV LDZ 2.2.0](https://github.com/ludezam/TV-LDZ). Depois de parear o celular com o Controle LDZ, a tela permite ajustar opções da home, como papel de parede, desfoque, protetor de tela e fotos, pela rede local.
+O **Controle LDZ 1.5.0** inclui a página **Personalizar** para TVs com [TV LDZ 2.2.0](https://github.com/ludezam/TV-LDZ/releases/tag/v2.2.0). Depois de parear o celular, ela permite ajustar o papel de parede, o desfoque, o protetor de tela e as fotos pela rede local.
 
-A integração requer a versão correspondente do TV LDZ e o provedor de configurações ativo no aparelho. Este commit publica o código-fonte; a release do APK precisa ser publicada separadamente para aparecer em **Buscar atualizações**.
+Instale os APKs compatíveis nas respectivas páginas: [Controle LDZ 1.5.0](https://github.com/ludezam/Controle-LDZ/releases/tag/v1.5.0) e [TV LDZ 2.2.0](https://github.com/ludezam/TV-LDZ/releases/tag/v2.2.0). A ponte do TV LDZ restringe o acesso às opções de personalização solicitadas pelo pacote Controle LDZ.
+
+
+
